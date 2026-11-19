@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>АлкоКалькулятор Pro — Точный расчет разбавления и перегонки</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#090B0E">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23F59E0B'><path d='M10 2v7.31M14 9.3V1.99M8.5 2h7M14 9.3a6.5 6.5 0 1 1-4 0'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090B0E;
+      --card-bg: rgba(18, 22, 29, 0.85);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-amber: #F59E0B;
+      --accent-amber-glow: rgba(245, 158, 11, 0.25);
+      --accent-cyan: #38BDF8;
+      --accent-cyan-glow: rgba(56, 189, 248, 0.25);
+      --accent-emerald: #10B981;
+      --accent-rose: #F43F5E;
+      
+      --text-main: #F3F4F6;
+      --text-muted: #9CA3AF;
+      --text-dim: #6B7280;
+      
+      --input-bg: #11141A;
+      --input-border: #222733;
+      --input-focus: #F59E0B;
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(ellipse 60% 40% at 50% -10%, rgba(245, 158, 11, 0.12), transparent 70%),
+        radial-gradient(ellipse 40% 30% at 90% 80%, rgba(56, 189, 248, 0.06), transparent 60%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 64px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1020px;
+    }
+
+    /* HEADER */
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .top-actions {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: flex;
+      gap: 8px;
+    }
+
+    @media (max-width: 640px) {
+      .top-actions {
+        position: static;
+        justify-content: center;
+        margin-bottom: 12px;
+      }
+    }
+
+    .icon-action-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .icon-action-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-amber);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      background: linear-gradient(180deg, #FFFFFF 0%, #D1D5DB 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      max-width: 540px;
+      margin: 0 auto;
+      line-height: 1.45;
+    }
+
+    /* MAIN NAV TABS */
+    .tabs-nav {
+      display: flex;
+      justify-content: flex-start;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 9999px;
+      padding: 4px;
+      max-width: 100%;
+      margin: 0 auto 24px;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .tabs-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 140px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 9px 14px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      background: #1F2532;
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* SUB TABS */
+    .subtabs-nav {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+      gap: 4px;
+      margin-bottom: 18px;
+    }
+
+    .subtab-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .subtab-btn.active {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--accent-amber);
+    }
+
+    /* APP GRID */
+    .app-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 840px) {
+      .app-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* CARDS */
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(20px);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+
+    .input-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .field-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .field-val-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent-amber);
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .num-input {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: var(--radius-md);
+      padding: 12px 48px 12px 14px;
+      color: #FFFFFF;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 17px;
+      font-weight: 600;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .num-input:focus {
+      border-color: var(--input-focus);
+      box-shadow: 0 0 0 3px var(--accent-amber-glow);
+    }
+
+    .input-unit {
+      position: absolute;
+      right: 14px;
+      color: var(--text-dim);
+      font-size: 13px;
+      font-weight: 600;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .range-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      background: #1C222E;
+      border-radius: 9999px;
+      outline: none;
+      margin-top: 4px;
+      cursor: pointer;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-amber);
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .presets-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 2px;
+    }
+
+    .chip-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip-btn:hover {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.3);
+      color: var(--text-main);
+    }
+
+    .chip-btn.active-chip {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: var(--accent-amber);
+      color: var(--accent-amber);
+    }
+
+    /* TOGGLE SWITCH */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: #11141A;
+      border: 1px solid var(--input-border);
+      border-radius: var(--radius-md);
+    }
+
+    .toggle-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .toggle-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toggle-desc {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 42px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider-toggle {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #272F3E;
+      transition: .25s;
+      border-radius: 9999px;
+    }
+
+    .slider-toggle:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .25s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider-toggle {
+      background-color: var(--accent-amber);
+    }
+
+    input:checked + .slider-toggle:before {
+      transform: translateX(18px);
+    }
+
+    /* RESULTS PANEL */
+    .results-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .hero-result {
+      background: linear-gradient(145deg, #181E29 0%, #12161E 100%);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      box-shadow: 0 10px 30px -5px rgba(245, 158, 11, 0.15);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-amber);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(32px, 5vw, 42px);
+      font-weight: 800;
+      color: #FFFFFF;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .hero-unit {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-left: 4px;
+    }
+
+    .hero-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-sub b {
+      color: var(--accent-cyan);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* STATS GRID */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: #11141B;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .stat-note {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* FRACTION BAR VISUALIZER */
+    .fraction-bar-box {
+      background: #11141B;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .fraction-bar {
+      display: flex;
+      height: 24px;
+      width: 100%;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .frac-heads {
+      background: var(--accent-rose);
+      transition: width 0.3s ease;
+    }
+
+    .frac-body {
+      background: var(--accent-amber);
+      transition: width 0.3s ease;
+    }
+
+    .frac-tails {
+      background: #4B5563;
+      transition: width 0.3s ease;
+    }
+
+    .frac-legend {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .legend-tag {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* FLASK VISUALIZER */
+    .visualizer-card {
+      background: #11141B;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .flask-container {
+      position: relative;
+      width: 52px;
+      height: 110px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top: none;
+      border-radius: 0 0 14px 14px;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .liquid-water {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(180deg, #38BDF8 0%, #0284C7 100%);
+      transition: height 0.3s ease;
+      z-index: 1;
+      opacity: 0.85;
+    }
+
+    .liquid-spirit {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(180deg, #F59E0B 0%, #D97706 100%);
+      transition: height 0.3s ease;
+      z-index: 2;
+      opacity: 0.9;
+    }
+
+    .visualizer-legend {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-muted);
+    }
+
+    /* ACTION BUTTONS */
+    .actions-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-main {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-main:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-main:active {
+      transform: scale(0.98);
+    }
+
+    /* RULES FOOTER */
+    .rules-card {
+      margin-top: 24px;
+      background: rgba(18, 22, 29, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+    }
+
+    .rules-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .rule-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .rule-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: var(--radius-sm);
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      color: var(--accent-amber);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .rule-text h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 2px;
+    }
+
+    .rule-text p {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1E2430;
+      border: 1px solid var(--accent-amber);
+      color: #FFFFFF;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- HEADER -->
+    <header>
+      <div class="top-actions">
+        <button class="icon-action-btn" onclick="shareUrl()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Поделиться расчетом
+        </button>
+      </div>
+
+      <div class="badge-pill">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M10 2v7.31M14 9.3V1.99M8.5 2h7M14 9.3a6.5 6.5 0 1 1-4 0"/>
+        </svg>
+        АлкоКалькулятор Pro v3.0
+      </div>
+      <h1>Калькулятор винокура и дистиллятора</h1>
+      <p class="subtitle">Физически точные формулы с контракцией Менделеева, расчет фракций (головы/тело) и гидромодуля браги</p>
+    </header>
+
+    <!-- MAIN NAV TABS -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" id="nav-tab-1" onclick="switchNavTab(1)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+        Разбавление водой
+      </button>
+      <button class="tab-btn" id="nav-tab-2" onclick="switchNavTab(2)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        Отбор голов и тела
+      </button>
+      <button class="tab-btn" id="nav-tab-3" onclick="switchNavTab(3)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2v20M18 2v20M2 18h20M2 6h20"/></svg>
+        Брага и сахар
+      </button>
+      <button class="tab-btn" id="nav-tab-4" onclick="switchNavTab(4)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>
+        АСП-3 (Ареометр)
+      </button>
+    </div>
+
+    <!-- MAIN APP GRID -->
+    <div class="app-grid">
+      
+      <!-- LEFT: INPUTS -->
+      <div class="glass-card">
+        
+        <!-- SECTION 1: DILUTION -->
+        <div id="sec-dilution" class="input-section">
+          
+          <div class="subtabs-nav">
+            <button class="subtab-btn active" id="subtab-dilute-1" onclick="setDiluteSubmode(1)">У меня есть самогон</button>
+            <button class="subtab-btn" id="subtab-dilute-2" onclick="setDiluteSubmode(2)">Хочу итоговый объем</button>
+          </div>
+
+          <div class="field-group">
+            <div class="field-header">
+              <label class="field-label" id="lbl-volume">Объем исходного самогона</label>
+              <span class="field-val-display" id="val-volume-display">1 000 мл</span>
+            </div>
+            <div class="input-wrapper">
+              <input type="number" id="inp-volume" class="num-input" value="1000" min="10" max="100000" step="50">
+              <span class="input-unit">мл</span>
+            </div>
+            <input type="range" id="rng-volume" class="range-slider" min="100" max="10000" step="50" value="1000">
+            <div class="presets-row">
+              <button class="chip-btn" onclick="setVolume(500)">0.5 л</button>
+              <button class="chip-btn active-chip" onclick="setVolume(1000)">1.0 л</button>
+              <button class="chip-btn" onclick="setVolume(2000)">2.0 л</button>
+              <button class="chip-btn" onclick="setVolume(3000)">3.0 л (банка)</button>
+              <button class="chip-btn" onclick="setVolume(5000)">5.0 л</button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-header">
+              <label class="field-label">Крепость спирта (исходная)</label>
+              <span class="field-val-display" id="val-init-display">70.0%</span>
+            </div>
+            <div class="input-wrapper">
+              <input type="number" id="inp-init-abv" class="num-input" value="70.0" min="1" max="96.6" step="0.5">
+              <span class="input-unit">% об.</span>
+            </div>
+            <input type="range" id="rng-init-abv" class="range-slider" min="20" max="96.6" step="0.1" value="70.0">
+            <div class="presets-row">
+              <button class="chip-btn" onclick="setInitAbv(96.6)">96.6% Ректификат</button>
+              <button class="chip-btn" onclick="setInitAbv(85)">85% 2-й погон</button>
+              <button class="chip-btn active-chip" onclick="setInitAbv(70)">70% Дистиллят</button>
+              <button class="chip-btn" onclick="setInitAbv(55)">55% Хлебное вино</button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-header">
+              <label class="field-label">Желаемая крепость (цель)</label>
+              <span class="field-val-display" id="val-target-display">40.0%</span>
+            </div>
+            <div class="input-wrapper">
+              <input type="number" id="inp-target-abv" class="num-input" value="40.0" min="1" max="96" step="0.5">
+              <span class="input-unit">% об.</span>
+            </div>
+            <input type="range" id="rng-target-abv" class="range-slider" min="10" max="80" step="0.1" value="40.0">
+            <div class="presets-row">
+              <button class="chip-btn active-chip" onclick="setTargetAbv(40)">40% Классика</button>
+              <button class="chip-btn" onclick="setTargetAbv(45)">45% Для настоек</button>
+              <button class="chip-btn" onclick="setTargetAbv(38)">38% Мягкая</button>
+              <button class="chip-btn" onclick="setTargetAbv(25)">25% Наливка</button>
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-title">Контракция Менделеева</div>
+              <div class="toggle-desc">Точный учет молекулярного сжатия спирта с водой</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="chk-contraction" checked onchange="calcDilution()">
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+
+        </div>
+
+        <!-- SECTION 2: HEADS & TAILS FRACTIONS -->
+        <div id="sec-fractions" class="input-section" style="display: none;">
+          
+          <div class="field-group">
+            <div class="field-header">
+              <label class="field-label">Объем спирта-сырца в кубе</label>
+              <span class="field-val-display" id="val-raw-vol-display">15.0 л</span>
+            </div>
+            <div class="input-wrapper">
+              <input type="number" id="inp-raw-vol" class="num-input" value="15.0" min="1" max="500" step="1">
+              <span class="input-unit">л</span>
+            </div>
+            <input type="range" id="rng-raw-vol" class="range-slider" min="2" max="60" step="0.5" value="15.0">
+            <div class="presets-row">
+              <button class="chip-btn" onclick="setRawVol(10)">10 л</button>
+              <button class="chip-btn active-chip" onclick="setRawVol(15)">15 л</button>
+              <button class="chip-btn" onclick="setRawVol(20)">20 л</button>
+              <button class="chip-btn" onclick="setRawVol(30)">30 л (бак)</button>
+              <button class="chip-btn" onclick="setRawVol(50)">50 л</button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-header">
+              <label class="field-label">Крепость сырца в кубе</label>
+              <span class="field-val-display" id="val-raw-abv-display">25.0%</span>
+            </div>
+            <div class="input-wrapper">
+              <input type="number" id="inp-raw-abv" class="num-input" value="25.0" min="5" max="60" step="0.5">
+              <span class="input-unit">% об.</span>
+            </div>
+            <input type="range" id="rng-raw-abv" class="range-slider" min="10" max="50" step="0.5" value="25.0">
+            <div class="presets-row">
+              <button class="chip-btn" onclick="setRawAbv(20)">20% Безопасный</button>
+              <button class="chip-btn active-chip" onclick="setRawAbv(25)">25% Стандарт</button>
+              <button class="chip-btn" onclick="setRawAbv(30)">30% Крепкий сырец</button>
+              <button class="chip-btn" onclick="setRawAbv(40)">40% Неразбавленный</button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-header">
+              <label class="field-label">Процент отбора голов от АС</label>
+              <span class="field-val-display" id="val-heads-pct-display">10.0%</span>
+            </div>
+            <div class="input-wrapper">
+              <input type="number" id="inp-heads-pct" class="num-input" value="10.0" min="5" max="20" step="0.5">
+              <span class="input-unit">% от АС</span>
+            </div>
+            <input type="range" id="rng-heads-pct" class="range-slider" min="6" max="15" step="0.5" value="10.0">
+            <div class="presets-row">
+              <button class="chip-btn" onclick="setHeadsPct(8)">8% (Фрукты/Зерно)</button>
+              <button class="chip-btn active-chip" onclick="setHeadsPct(10)">10% (Сахар)</button>
+              <button class="chip-btn" onclick="setHeadsPct(12)">12% (С запасом)</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SECTION 3: MASH & SUGAR -->
+        <div id="sec-mash" class="input-section" style="display: none;">
+          
+          <div class="field-group">
+            <div class="field-header">
+              <label class="field-label">Вес сахара</label>
+              <span class="field-val-display" id="val-sugar-kg-display">5.0 кг</span>
+            </div>
+            <div class="input-wrapper">
+              <input type="number" id="inp-sugar-kg" class="num-input" value="5.0" min="0.5" max="100" step="0.5">
+              <span class="input-unit">кг</span>
+            </div>
+            <input type="range" id="rng-sugar-kg" class="range-slider" min="1" max="25" step="0.5" value="5.0">
+            <div class="presets-row">
+              <button class="chip-btn" onclick="setSugar(3)">3 кг</button>
+              <button class="chip-btn active-chip" onclick="setSugar(5)">5 кг</button>
+              <button class="chip-btn" onclick="setSugar(8)">8 кг</button>
+              <button class="chip-btn" onclick="setSugar(10)">10 кг</button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-header">
+              <label class="field-label">Объем воды</label>
+              <span class="field-val-display" id="val-water-l-display">20.0 л</span>
+            </div>
+            <div class="input-wrapper">
+              <input type="number" id="inp-water-l" class="num-input" value="20.0" min="2" max="300" step="1">
+              <span class="input-unit">л</span>
+            </div>
+            <input type="range" id="rng-water-l" class="range-slider" min="5" max="80" step="1" value="20.0">
+            <div class="presets-row">
+              <button class="chip-btn" onclick="setWater(15)">15 л</button>
+              <button class="chip-btn active-chip" onclick="setWater(20)">20 л (1:4)</button>
+              <button class="chip-btn" onclick="setWater(22.5)">22.5 л (1:4.5)</button>
+              <button class="chip-btn" onclick="setWater(25)">25 л (1:5)</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SECTION 4: AREOMETER TEMP -->
+        <div id="sec-areo" class="input-section" style="display: none;">
+          
+          <div class="field-group">
+            <div class="field-header">
+              <label class="field-label">Показания ареометра (АСП-3)</label>
+              <span class="field-val-display" id="val-areo-display">70.0%</span>
+            </div>
+            <div class="input-wrapper">
+              <input type="number" id="inp-areo-abv" class="num-input" value="70.0" min="0" max="100" step="0.5">
+              <span class="input-unit">% об.</span>
+            </div>
+            <input type="range" id="rng-areo-abv" class="range-slider" min="10" max="98" step="0.5" value="70.0">
+          </div>
+
+          <div class="field-group">
+            <div class="field-header">
+              <label class="field-label">Температура раствора</label>
+              <span class="field-val-display" id="val-areo-temp-display">25.0 °C</span>
+            </div>
+            <div class="input-wrapper">
+              <input type="number" id="inp-areo-temp" class="num-input" value="25.0" min="0" max="40" step="0.5">
+              <span class="input-unit">°C</span>
+            </div>
+            <input type="range" id="rng-areo-temp" class="range-slider" min="5" max="38" step="0.5" value="25.0">
+            <div class="presets-row">
+              <button class="chip-btn" onclick="setAreoTemp(15)">15°C (Подвал)</button>
+              <button class="chip-btn" onclick="setAreoTemp(20)">20°C (Калибровка)</button>
+              <button class="chip-btn active-chip" onclick="setAreoTemp(25)">25°C (Комната)</button>
+              <button class="chip-btn" onclick="setAreoTemp(30)">30°C (Теплый погон)</button>
+            </div>
+          </div>
+
+          <button class="btn-main" onclick="applyCorrectedToDilution()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Вставить точный градус в калькулятор
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- RIGHT: RESULTS -->
+      <div class="results-panel">
+        
+        <!-- HERO CARD -->
+        <div class="hero-result">
+          <div class="hero-label" id="res-hero-label">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+            Добавить воды
+          </div>
+          <div class="hero-value">
+            <span id="res-hero-main-val">775</span><span class="hero-unit" id="res-hero-main-unit">мл</span>
+          </div>
+          <div class="hero-sub" id="res-hero-sub">
+            <span id="res-hero-sub-lbl">Или на кухонных весах:</span> <b id="res-hero-sub-val">774 г</b>
+          </div>
+        </div>
+
+        <!-- DYNAMIC STATS GRID -->
+        <div class="stats-grid" id="stats-grid-container">
+          <!-- Populated by JS based on active tab -->
+        </div>
+
+        <!-- DYNAMIC VISUALIZER (FLASK OR FRACTION BAR) -->
+        <div id="vis-container">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="actions-row">
+          <button class="btn-main" onclick="copyActiveRecipe()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            Скопировать рецепт
+          </button>
+          <button class="btn-main" onclick="shareUrl()" style="flex: 0 0 46px; padding: 0;" title="Поделиться расчетом">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- RULES CARD -->
+    <div class="rules-card">
+      <div class="rules-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+        Золотые правила дистиллятора
+      </div>
+      <div class="rules-grid">
+        <div class="rule-item">
+          <div class="rule-icon">1</div>
+          <div class="rule-text">
+            <h4>Лей спирт в воду</h4>
+            <p>Не наоборот! При вливании воды в спирт раствор греется, происходит термический шок эфиров и напиток мутнеет.</p>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-icon">2</div>
+          <div class="rule-text">
+            <h4>Отбор голов по запаху</h4>
+            <p>Расчет дает ориентир. Окончание голов проверяй на ладони: разотри каплю, пока не уйдет едкий запах ацетона.</p>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-icon">3</div>
+          <div class="rule-text">
+            <h4>Отдых в стекле 5-7 дней</h4>
+            <p>Водно-спиртовой раствор стабилизирует водородные связи только через несколько суток. Вкус станет мягким и сбалансированным.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    <span id="toast-text">Скопировано в буфер!</span>
+  </div>
+
+  <script>
+    // Mendeleev / IUPAC Density Table at 20°C (0..100% vol)
+    const DENSITY_TABLE = [
+      0.9982, 0.99714, 0.99606, 0.99495, 0.99383, 0.99268, 0.9915, 0.99027, 0.98903, 0.9878, 
+      0.98661, 0.98548, 0.9844, 0.98333, 0.98221, 0.98099, 0.97963, 0.97816, 0.97662, 0.97508, 
+      0.97359, 0.97213, 0.97065, 0.9692, 0.96784, 0.9666, 0.96554, 0.96462, 0.96373, 0.96278, 
+      0.96168, 0.9603, 0.95868, 0.95696, 0.9553, 0.95382, 0.95259, 0.95148, 0.95042, 0.94931, 
+      0.94805, 0.9466, 0.94501, 0.94332, 0.94157, 0.9398, 0.938, 0.93615, 0.93425, 0.93231, 
+      0.93034, 0.92834, 0.9263, 0.92422, 0.92212, 0.92, 0.91787, 0.91572, 0.91355, 0.91135, 
+      0.90911, 0.90682, 0.90449, 0.90213, 0.89976, 0.8974, 0.89506, 0.89273, 0.89039, 0.88801, 
+      0.88556, 0.88304, 0.88048, 0.87785, 0.87516, 0.8724, 0.86955, 0.8666, 0.86359, 0.86054, 
+      0.85746, 0.85436, 0.85123, 0.84806, 0.84485, 0.8416, 0.83836, 0.83511, 0.83181, 0.82839, 
+      0.8248, 0.82081, 0.81646, 0.81204, 0.80786, 0.80424, 0.80138, 0.7984, 0.7954, 0.7923, 0.78927
+    ];
+    const RHO_ETHANOL_20 = 0.78927;
+    const RHO_WATER_20 = 0.99820;
+
+    function getDensity(abv) {
+      if (abv <= 0) return DENSITY_TABLE[0];
+      if (abv >= 100) return DENSITY_TABLE[100];
+      const i = Math.floor(abv);
+      const frac = abv - i;
+      return DENSITY_TABLE[i] + frac * (DENSITY_TABLE[i + 1] - DENSITY_TABLE[i]);
+    }
+
+    // STATE
+    let currentNavTab = 1;
+    let diluteSubmode = 1; // 1 = have spirit, 2 = want volume
+    let lastCopyText = '';
+
+    // ELEMENTS
+    const inpVolume = document.getElementById('inp-volume');
+    const rngVolume = document.getElementById('rng-volume');
+    const valVolumeDisplay = document.getElementById('val-volume-display');
+    const lblVolume = document.getElementById('lbl-volume');
+
+    const inpInitAbv = document.getElementById('inp-init-abv');
+    const rngInitAbv = document.getElementById('rng-init-abv');
+    const valInitDisplay = document.getElementById('val-init-display');
+
+    const inpTargetAbv = document.getElementById('inp-target-abv');
+    const rngTargetAbv = document.getElementById('rng-target-abv');
+    const valTargetDisplay = document.getElementById('val-target-display');
+
+    const chkContraction = document.getElementById('chk-contraction');
+
+    // FRACTIONS ELEMENTS
+    const inpRawVol = document.getElementById('inp-raw-vol');
+    const rngRawVol = document.getElementById('rng-raw-vol');
+    const valRawVolDisplay = document.getElementById('val-raw-vol-display');
+    const inpRawAbv = document.getElementById('inp-raw-abv');
+    const rngRawAbv = document.getElementById('rng-raw-abv');
+    const valRawAbvDisplay = document.getElementById('val-raw-abv-display');
+    const inpHeadsPct = document.getElementById('inp-heads-pct');
+    const rngHeadsPct = document.getElementById('rng-heads-pct');
+    const valHeadsPctDisplay = document.getElementById('val-heads-pct-display');
+
+    // MASH ELEMENTS
+    const inpSugarKg = document.getElementById('inp-sugar-kg');
+    const rngSugarKg = document.getElementById('rng-sugar-kg');
+    const valSugarKgDisplay = document.getElementById('val-sugar-kg-display');
+    const inpWaterL = document.getElementById('inp-water-l');
+    const rngWaterL = document.getElementById('rng-water-l');
+    const valWaterLDisplay = document.getElementById('val-water-l-display');
+
+    // AREO ELEMENTS
+    const inpAreoAbv = document.getElementById('inp-areo-abv');
+    const rngAreoAbv = document.getElementById('rng-areo-abv');
+    const valAreoDisplay = document.getElementById('val-areo-display');
+    const inpAreoTemp = document.getElementById('inp-areo-temp');
+    const rngAreoTemp = document.getElementById('rng-areo-temp');
+    const valAreoTempDisplay = document.getElementById('val-areo-temp-display');
+
+    // BIND INPUT & SLIDER
+    function bind(input, slider, display, fmt, callback) {
+      input.addEventListener('input', () => {
+        slider.value = input.value;
+        if (display) display.innerText = fmt(input.value);
+        callback();
+      });
+      slider.addEventListener('input', () => {
+        input.value = slider.value;
+        if (display) display.innerText = fmt(slider.value);
+        callback();
+      });
+    }
+
+    bind(inpVolume, rngVolume, valVolumeDisplay, v => Number(v).toLocaleString('ru-RU') + ' мл', calcDilution);
+    bind(inpInitAbv, rngInitAbv, valInitDisplay, v => Number(v).toFixed(1) + '%', calcDilution);
+    bind(inpTargetAbv, rngTargetAbv, valTargetDisplay, v => Number(v).toFixed(1) + '%', calcDilution);
+
+    bind(inpRawVol, rngRawVol, valRawVolDisplay, v => Number(v).toFixed(1) + ' л', calcFractions);
+    bind(inpRawAbv, rngRawAbv, valRawAbvDisplay, v => Number(v).toFixed(1) + '%', calcFractions);
+    bind(inpHeadsPct, rngHeadsPct, valHeadsPctDisplay, v => Number(v).toFixed(1) + '%', calcFractions);
+
+    bind(inpSugarKg, rngSugarKg, valSugarKgDisplay, v => Number(v).toFixed(1) + ' кг', calcMash);
+    bind(inpWaterL, rngWaterL, valWaterLDisplay, v => Number(v).toFixed(1) + ' л', calcMash);
+
+    bind(inpAreoAbv, rngAreoAbv, valAreoDisplay, v => Number(v).toFixed(1) + '%', calcAreometer);
+    bind(inpAreoTemp, rngAreoTemp, valAreoTempDisplay, v => Number(v).toFixed(1) + ' °C', calcAreometer);
+
+    // PRESET HELPERS
+    function setVolume(v) { inpVolume.value = v; rngVolume.value = v; valVolumeDisplay.innerText = v.toLocaleString('ru-RU') + ' мл'; calcDilution(); }
+    function setInitAbv(v) { inpInitAbv.value = v; rngInitAbv.value = v; valInitDisplay.innerText = Number(v).toFixed(1) + '%'; calcDilution(); }
+    function setTargetAbv(v) { inpTargetAbv.value = v; rngTargetAbv.value = v; valTargetDisplay.innerText = Number(v).toFixed(1) + '%'; calcDilution(); }
+
+    function setRawVol(v) { inpRawVol.value = v; rngRawVol.value = v; valRawVolDisplay.innerText = Number(v).toFixed(1) + ' л'; calcFractions(); }
+    function setRawAbv(v) { inpRawAbv.value = v; rngRawAbv.value = v; valRawAbvDisplay.innerText = Number(v).toFixed(1) + '%'; calcFractions(); }
+    function setHeadsPct(v) { inpHeadsPct.value = v; rngHeadsPct.value = v; valHeadsPctDisplay.innerText = Number(v).toFixed(1) + '%'; calcFractions(); }
+
+    function setSugar(v) { inpSugarKg.value = v; rngSugarKg.value = v; valSugarKgDisplay.innerText = Number(v).toFixed(1) + ' кг'; calcMash(); }
+    function setWater(v) { inpWaterL.value = v; rngWaterL.value = v; valWaterLDisplay.innerText = Number(v).toFixed(1) + ' л'; calcMash(); }
+    function setAreoTemp(v) { inpAreoTemp.value = v; rngAreoTemp.value = v; valAreoTempDisplay.innerText = Number(v).toFixed(1) + ' °C'; calcAreometer(); }
+
+    function setDiluteSubmode(sub) {
+      diluteSubmode = sub;
+      document.getElementById('subtab-dilute-1').classList.toggle('active', sub === 1);
+      document.getElementById('subtab-dilute-2').classList.toggle('active', sub === 2);
+      lblVolume.innerText = sub === 1 ? 'Объем исходного самогона' : 'Желаемый итоговый объем';
+      calcDilution();
+    }
+
+    // NAV TAB SWITCHING
+    function switchNavTab(tab) {
+      currentNavTab = tab;
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById(`nav-tab-${i}`).classList.toggle('active', i === tab);
+      }
+
+      document.getElementById('sec-dilution').style.display = tab === 1 ? 'flex' : 'none';
+      document.getElementById('sec-fractions').style.display = tab === 2 ? 'flex' : 'none';
+      document.getElementById('sec-mash').style.display = tab === 3 ? 'flex' : 'none';
+      document.getElementById('sec-areo').style.display = tab === 4 ? 'flex' : 'none';
+
+      if (tab === 1) calcDilution();
+      if (tab === 2) calcFractions();
+      if (tab === 3) calcMash();
+      if (tab === 4) calcAreometer();
+
+      updateUrlState();
+    }
+
+    // 1. CALC DILUTION
+    function calcDilution() {
+      const c1 = parseFloat(inpInitAbv.value);
+      const c2 = parseFloat(inpTargetAbv.value);
+      const volInput = parseFloat(inpVolume.value);
+      const useContraction = chkContraction.checked;
+
+      if (c1 <= c2) {
+        document.getElementById('res-hero-label').innerText = 'Ошибка крепости';
+        document.getElementById('res-hero-main-val').innerText = '0';
+        document.getElementById('res-hero-main-unit').innerText = '';
+        document.getElementById('res-hero-sub-lbl').innerText = '';
+        document.getElementById('res-hero-sub-val').innerText = 'Целевая крепость должна быть меньше исходной!';
+        return;
+      }
+
+      let spiritVol = 0, waterVol = 0, finalVol = 0, contractionVol = 0;
+      const rho1 = getDensity(c1);
+      const rho2 = getDensity(c2);
+
+      if (diluteSubmode === 1) {
+        spiritVol = volInput;
+        const pureEthanolVol = spiritVol * (c1 / 100);
+        finalVol = pureEthanolVol / (c2 / 100);
+
+        if (useContraction) {
+          const spiritMass = spiritVol * rho1;
+          const pureEthanolMass = pureEthanolVol * RHO_ETHANOL_20;
+          const initialWaterMass = spiritMass - pureEthanolMass;
+          const finalTotalMass = finalVol * rho2;
+          const finalWaterMass = finalTotalMass - pureEthanolMass;
+          waterVol = Math.max(0, finalWaterMass - initialWaterMass) / RHO_WATER_20;
+          contractionVol = (spiritVol + waterVol) - finalVol;
+        } else {
+          waterVol = spiritVol * ((c1 - c2) / c2);
+          finalVol = spiritVol + waterVol;
+          contractionVol = 0;
+        }
+      } else {
+        finalVol = volInput;
+        const pureEthanolVol = finalVol * (c2 / 100);
+        spiritVol = pureEthanolVol / (c1 / 100);
+
+        if (useContraction) {
+          const spiritMass = spiritVol * rho1;
+          const pureEthanolMass = pureEthanolVol * RHO_ETHANOL_20;
+          const initialWaterMass = spiritMass - pureEthanolMass;
+          const finalTotalMass = finalVol * rho2;
+          const finalWaterMass = finalTotalMass - pureEthanolMass;
+          waterVol = Math.max(0, finalWaterMass - initialWaterMass) / RHO_WATER_20;
+          contractionVol = (spiritVol + waterVol) - finalVol;
+        } else {
+          waterVol = finalVol - spiritVol;
+          contractionVol = 0;
+        }
+      }
+
+      const waterGrams = waterVol * RHO_WATER_20;
+      const spiritGrams = spiritVol * rho1;
+
+      // Hero
+      document.getElementById('res-hero-label').innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+        ${diluteSubmode === 1 ? 'Добавить воды' : 'Нужно долить воды'}
+      `;
+      document.getElementById('res-hero-main-val').innerText = Math.round(waterVol).toLocaleString('ru-RU');
+      document.getElementById('res-hero-main-unit').innerText = 'мл';
+      document.getElementById('res-hero-sub-lbl').innerText = 'Или на кухонных весах:';
+      document.getElementById('res-hero-sub-val').innerText = `${Math.round(waterGrams).toLocaleString('ru-RU')} г`;
+
+      // Stats
+      document.getElementById('stats-grid-container').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-title">${diluteSubmode === 1 ? 'Объем спирта' : 'Нужно спирта'}</div>
+          <div class="stat-value">${Math.round(spiritVol).toLocaleString('ru-RU')} мл</div>
+          <div class="stat-note">Вес: ~${Math.round(spiritGrams).toLocaleString('ru-RU')} г</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Итоговый объем</div>
+          <div class="stat-value">${Math.round(finalVol).toLocaleString('ru-RU')} мл</div>
+          <div class="stat-note">~${(finalVol / 1000).toFixed(2)} л напитка</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Сжатие (контракция)</div>
+          <div class="stat-value" style="color: ${contractionVol > 0.5 ? 'var(--accent-amber)' : 'var(--text-muted)'}">
+            ${contractionVol > 0.5 ? `-${Math.round(contractionVol)} мл` : '0 мл'}
+          </div>
+          <div class="stat-note">По Менделееву</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Итоговая крепость</div>
+          <div class="stat-value" style="color: var(--accent-cyan);">${c2.toFixed(1)}%</div>
+          <div class="stat-note">При температуре 20°C</div>
+        </div>
+      `;
+
+      // Vessel
+      const totalMix = spiritVol + waterVol;
+      const pctSpirit = Math.min(85, Math.max(15, (spiritVol / totalMix) * 100));
+      document.getElementById('vis-container').innerHTML = `
+        <div class="visualizer-card">
+          <div class="flask-container">
+            <div class="liquid-water" style="height: 100%;"></div>
+            <div class="liquid-spirit" style="height: ${pctSpirit}%;"></div>
+          </div>
+          <div class="visualizer-legend">
+            <div class="legend-item">
+              <span><span class="dot" style="background: var(--accent-amber); display:inline-block; margin-right:4px;"></span> Самогон (${c1.toFixed(1)}%)</span>
+              <b>${Math.round(spiritVol)} мл</b>
+            </div>
+            <div class="legend-item">
+              <span><span class="dot" style="background: var(--accent-cyan); display:inline-block; margin-right:4px;"></span> Вода для долива</span>
+              <b>${Math.round(waterVol)} мл</b>
+            </div>
+            <div class="legend-item" style="border-top: 1px solid var(--card-border); padding-top: 6px; margin-top: 2px;">
+              <span style="color: #FFF; font-weight:600;">Готовый продукт</span>
+              <b style="color: #FFF;">${Math.round(finalVol)} мл</b>
+            </div>
+          </div>
+        </div>
+      `;
+
+      lastCopyText = 
+`🧪 Рецепт разведения самогона:
+• Самогон (${c1}%): ${Math.round(spiritVol)} мл (${Math.round(spiritGrams)} г)
+• Вода для долива: ${Math.round(waterVol)} мл (${Math.round(waterGrams)} г на весах)
+• Итоговый напиток: ${Math.round(finalVol)} мл крепостью ${c2}%
+${contractionVol > 0 ? `• Контракция: -${Math.round(contractionVol)} мл\n` : ''}
+⚠️ Важно: лить спирт в холодную воду тонкой струйкой!
+Отдых в стекле 3-5 дней.`;
+
+      updateUrlState();
+    }
+
+    // 2. CALC FRACTIONS
+    function calcFractions() {
+      const rawVolL = parseFloat(inpRawVol.value);
+      const rawAbv = parseFloat(inpRawAbv.value);
+      const headsPct = parseFloat(inpHeadsPct.value);
+
+      // Absolute Alcohol (AC) in Liters
+      const acL = rawVolL * (rawAbv / 100);
+      const acMl = acL * 1000;
+
+      // Heads
+      const headsAcMl = acMl * (headsPct / 100);
+      // Average distillate strength off condenser: ~88% ABV
+      const headsLiquidMl = headsAcMl / 0.88;
+
+      // Body: ~72% of AC
+      const bodyAcMl = acMl * 0.72;
+      const bodyLiquidMl = bodyAcMl / 0.88;
+      // Yield at 40% ready drink
+      const readyDrink40Ml = bodyAcMl / 0.40;
+      const bottlesCount = (readyDrink40Ml / 500).toFixed(1);
+
+      // Tails: remainder
+      const tailsAcMl = acMl - headsAcMl - bodyAcMl;
+      const tailsLiquidMl = Math.max(0, tailsAcMl / 0.45);
+
+      // Hero
+      document.getElementById('res-hero-label').innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Отобрать голов
+      `;
+      document.getElementById('res-hero-main-val').innerText = Math.round(headsLiquidMl).toLocaleString('ru-RU');
+      document.getElementById('res-hero-main-unit').innerText = 'мл';
+      document.getElementById('res-hero-sub-lbl').innerText = 'В пересчете на АС:';
+      document.getElementById('res-hero-sub-val').innerText = `${Math.round(headsAcMl)} мл (${headsPct}%)`;
+
+      // Stats
+      document.getElementById('stats-grid-container').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-title">Абсолютный спирт (АС)</div>
+          <div class="stat-value" style="color: var(--accent-cyan);">${acL.toFixed(2)} л</div>
+          <div class="stat-note">${Math.round(acMl)} мл чистого спирта</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Питьевое тело (~88%)</div>
+          <div class="stat-value" style="color: var(--accent-amber);">${(bodyLiquidMl / 1000).toFixed(2)} л</div>
+          <div class="stat-note">~${Math.round(bodyLiquidMl)} мл со струи</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Выход напитка 40%</div>
+          <div class="stat-value" style="color: var(--accent-emerald);">${(readyDrink40Ml / 1000).toFixed(1)} л</div>
+          <div class="stat-note">Ровно ${bottlesCount} бут. по 0.5 л</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Остаток в хвосты</div>
+          <div class="stat-value" style="color: var(--text-dim);">${(tailsLiquidMl / 1000).toFixed(1)} л</div>
+          <div class="stat-note">На кольцевание</div>
+        </div>
+      `;
+
+      // Fraction bar
+      const pctH = headsPct;
+      const pctB = 72;
+      const pctT = Math.max(0, 100 - pctH - pctB);
+
+      document.getElementById('vis-container').innerHTML = `
+        <div class="fraction-bar-box">
+          <div class="fraction-bar">
+            <div class="frac-heads" style="width: ${pctH}%;" title="Головы: ${Math.round(headsLiquidMl)} мл"></div>
+            <div class="frac-body" style="width: ${pctB}%;" title="Тело: ${(bodyLiquidMl/1000).toFixed(2)} л"></div>
+            <div class="frac-tails" style="width: ${pctT}%;" title="Хвосты: ${(tailsLiquidMl/1000).toFixed(1)} л"></div>
+          </div>
+          <div class="frac-legend">
+            <div class="legend-tag"><span class="dot" style="background:var(--accent-rose);"></span> Головы: <b>${Math.round(headsLiquidMl)} мл</b></div>
+            <div class="legend-tag"><span class="dot" style="background:var(--accent-amber);"></span> Тело: <b>${(bodyLiquidMl/1000).toFixed(2)} л</b></div>
+            <div class="legend-tag"><span class="dot" style="background:#4B5563;"></span> Хвосты: <b>${(tailsLiquidMl/1000).toFixed(1)} л</b></div>
+          </div>
+        </div>
+      `;
+
+      lastCopyText = 
+`🎯 Расчет второй перегонки (сырец ${rawVolL} л @ ${rawAbv}%):
+• Абсолютный спирт (АС): ${acL.toFixed(2)} л
+• Головы (${headsPct}% от АС): ${Math.round(headsLiquidMl)} мл (капать со скоростью 1-2 капли/сек!)
+• Тело (дистиллят ~88%): ${(bodyLiquidMl / 1000).toFixed(2)} л
+• Итого готового 40% напитка: ${(readyDrink40Ml / 1000).toFixed(1)} л (~${bottlesCount} бутылок по 0.5 л)
+• Хвосты: отбирать после падения крепости в струе ниже 45%`;
+
+      updateUrlState();
+    }
+
+    // 3. CALC MASH
+    function calcMash() {
+      const sugarKg = parseFloat(inpSugarKg.value);
+      const waterL = parseFloat(inpWaterL.value);
+
+      // Hydromodule 1 : (water / sugar)
+      const ratio = waterL / sugarKg;
+      // Sugar dissolved adds +0.6 L per kg
+      const totalMashVolL = waterL + (sugarKg * 0.6);
+      // Brix / Sugar percentage
+      const brix = (sugarKg / (waterL + sugarKg)) * 100;
+      // Yield: ~0.58 L of AC per kg of sugar with real fermentation efficiency
+      const totalAcL = sugarKg * 0.58;
+      // Mash ABV %
+      const mashAbv = (totalAcL / totalMashVolL) * 100;
+      // 40% product yield
+      const readyDrink40L = totalAcL / 0.40;
+      const bottles = (readyDrink40L / 0.5).toFixed(1);
+
+      let badgeText = "Стандарт (для сухих спиртовых)";
+      let badgeColor = "var(--accent-cyan)";
+      if (ratio < 3.8) { badgeText = "Плотная (только для Турбо-дрожжей)"; badgeColor = "var(--accent-rose)"; }
+      else if (ratio >= 4.5) { badgeText = "Легкая (быстрое сбраживание)"; badgeColor = "var(--accent-emerald)"; }
+
+      document.getElementById('res-hero-label').innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2v20M18 2v20M2 18h20M2 6h20"/></svg>
+        Гидромодуль браги
+      `;
+      document.getElementById('res-hero-main-val').innerText = `1 : ${ratio.toFixed(1)}`;
+      document.getElementById('res-hero-main-unit').innerText = '';
+      document.getElementById('res-hero-sub-lbl').innerText = 'Рекомендация:';
+      document.getElementById('res-hero-sub-val').innerText = badgeText;
+      document.getElementById('res-hero-sub-val').style.color = badgeColor;
+
+      document.getElementById('stats-grid-container').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-title">Общий объем сусла</div>
+          <div class="stat-value">${totalMashVolL.toFixed(1)} л</div>
+          <div class="stat-note">Сахар добавил +${(sugarKg * 0.6).toFixed(1)} л</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Плотность сусла</div>
+          <div class="stat-value" style="color: var(--accent-amber);">${brix.toFixed(1)}° Brix</div>
+          <div class="stat-note">Сахаристость сусла</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Крепость браги</div>
+          <div class="stat-value" style="color: var(--accent-cyan);">${mashAbv.toFixed(1)}% об.</div>
+          <div class="stat-note">При полном сбраживании</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Выход готового 40%</div>
+          <div class="stat-value" style="color: var(--accent-emerald);">${readyDrink40L.toFixed(1)} л</div>
+          <div class="stat-note">~${bottles} бутылок по 0.5 л</div>
+        </div>
+      `;
+
+      document.getElementById('vis-container').innerHTML = `
+        <div class="visualizer-card">
+          <div style="font-size: 32px; margin-right: 6px;">🌾</div>
+          <div class="visualizer-legend">
+            <div class="legend-item">
+              <span>Сахар (${sugarKg} кг) + Вода (${waterL} л)</span>
+              <b>${totalMashVolL.toFixed(1)} л браги</b>
+            </div>
+            <div class="legend-item">
+              <span>Потенциал абсолютного спирта:</span>
+              <b style="color: var(--accent-cyan);">${totalAcL.toFixed(2)} л АС</b>
+            </div>
+            <div class="legend-item" style="border-top: 1px solid var(--card-border); padding-top: 4px;">
+              <span>Прогноз самогона 40%:</span>
+              <b style="color: var(--accent-emerald);">${readyDrink40L.toFixed(1)} л (${bottles} бут.)</b>
+            </div>
+          </div>
+        </div>
+      `;
+
+      lastCopyText = 
+`🌾 Рецепт сахарной браги:
+• Сахар: ${sugarKg} кг
+• Вода: ${waterL} л (гидромодуль 1:${ratio.toFixed(1)})
+• Общий объем в бродильной емкости: ${totalMashVolL.toFixed(1)} л
+• Плотность: ${brix.toFixed(1)}° Brix
+• Крепость созревшей браги: ~${mashAbv.toFixed(1)}% об.
+• Прогнозируемый выход 40% продукта: ~${readyDrink40L.toFixed(1)} л (~${bottles} бут. по 0.5 л)`;
+
+      updateUrlState();
+    }
+
+    // 4. CALC AREOMETER
+    function calcAreometer() {
+      const cObs = parseFloat(inpAreoAbv.value);
+      const t = parseFloat(inpAreoTemp.value);
+
+      const delta = (t - 20) * (0.04 + 0.0038 * cObs);
+      const cTrue = Math.max(0, Math.min(99.9, cObs - delta));
+
+      document.getElementById('res-hero-label').innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>
+        Истинная крепость при 20°C
+      `;
+      document.getElementById('res-hero-main-val').innerText = cTrue.toFixed(1);
+      document.getElementById('res-hero-main-unit').innerText = '% об.';
+      document.getElementById('res-hero-sub-lbl').innerText = 'Погрешность температуры:';
+      document.getElementById('res-hero-sub-val').innerText = `${(cTrue - cObs >= 0 ? '+' : '') + (cTrue - cObs).toFixed(1)}%`;
+
+      document.getElementById('stats-grid-container').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-title">Показания по шкале</div>
+          <div class="stat-value">${cObs.toFixed(1)}%</div>
+          <div class="stat-note">На ареометре</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Температура раствора</div>
+          <div class="stat-value" style="color: var(--accent-amber);">${t.toFixed(1)} °C</div>
+          <div class="stat-note">Калибровка: 20°C</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Разница плотности</div>
+          <div class="stat-value" style="color: var(--accent-cyan);">${(cTrue - cObs >= 0 ? '+' : '') + (cTrue - cObs).toFixed(1)}%</div>
+          <div class="stat-note">Температурная поправка</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Истинный спирт</div>
+          <div class="stat-value" style="color: var(--accent-emerald);">${cTrue.toFixed(1)}%</div>
+          <div class="stat-note">ГОСТ / Менделеев</div>
+        </div>
+      `;
+
+      document.getElementById('vis-container').innerHTML = `
+        <div class="visualizer-card">
+          <div style="font-size: 30px; margin-right: 6px;">🌡️</div>
+          <div class="visualizer-legend">
+            <div class="legend-item">
+              <span>Шкала ареометра при ${t}°C:</span>
+              <b>${cObs.toFixed(1)}%</b>
+            </div>
+            <div class="legend-item">
+              <span>Реальная спиртуозность при 20°C:</span>
+              <b style="color: var(--accent-emerald); font-size:14px;">${cTrue.toFixed(1)}% об.</b>
+            </div>
+          </div>
+        </div>
+      `;
+
+      lastCopyText = 
+`🌡️ Показания спиртомера АСП-3:
+• Видимая крепость на шкале: ${cObs.toFixed(1)}%
+• Температура замера: ${t.toFixed(1)} °C
+• Истинная крепость (при 20°C): ${cTrue.toFixed(1)}% об. (поправка: ${(cTrue - cObs >= 0 ? '+' : '') + (cTrue - cObs).toFixed(1)}%)`;
+
+      updateUrlState();
+    }
+
+    function applyCorrectedToDilution() {
+      const cObs = parseFloat(inpAreoAbv.value);
+      const t = parseFloat(inpAreoTemp.value);
+      const delta = (t - 20) * (0.04 + 0.0038 * cObs);
+      const cTrue = Math.max(0, Math.min(96.6, cObs - delta));
+
+      switchNavTab(1);
+      setInitAbv(parseFloat(cTrue.toFixed(1)));
+      showToast('Истинная крепость ' + cTrue.toFixed(1) + '% установлена!');
+    }
+
+    // URL STATE SHARE
+    function updateUrlState() {
+      const params = new URLSearchParams();
+      params.set('tab', currentNavTab);
+      if (currentNavTab === 1) {
+        params.set('v', inpVolume.value);
+        params.set('c1', inpInitAbv.value);
+        params.set('c2', inpTargetAbv.value);
+        params.set('sub', diluteSubmode);
+      } else if (currentNavTab === 2) {
+        params.set('rv', inpRawVol.value);
+        params.set('ra', inpRawAbv.value);
+        params.set('hp', inpHeadsPct.value);
+      } else if (currentNavTab === 3) {
+        params.set('s', inpSugarKg.value);
+        params.set('w', inpWaterL.value);
+      } else if (currentNavTab === 4) {
+        params.set('aa', inpAreoAbv.value);
+        params.set('at', inpAreoTemp.value);
+      }
+      history.replaceState(null, '', '#' + params.toString());
+    }
+
+    function restoreFromUrl() {
+      if (!window.location.hash) return;
+      const hash = window.location.hash.substring(1);
+      const p = new URLSearchParams(hash);
+      const tab = parseInt(p.get('tab'));
+      if (tab && tab >= 1 && tab <= 4) {
+        if (tab === 1) {
+          if (p.get('v')) setVolume(parseFloat(p.get('v')));
+          if (p.get('c1')) setInitAbv(parseFloat(p.get('c1')));
+          if (p.get('c2')) setTargetAbv(parseFloat(p.get('c2')));
+          if (p.get('sub')) setDiluteSubmode(parseInt(p.get('sub')));
+        } else if (tab === 2) {
+          if (p.get('rv')) setRawVol(parseFloat(p.get('rv')));
+          if (p.get('ra')) setRawAbv(parseFloat(p.get('ra')));
+          if (p.get('hp')) setHeadsPct(parseFloat(p.get('hp')));
+        } else if (tab === 3) {
+          if (p.get('s')) setSugar(parseFloat(p.get('s')));
+          if (p.get('w')) setWater(parseFloat(p.get('w')));
+        } else if (tab === 4) {
+          if (p.get('aa')) { inpAreoAbv.value = p.get('aa'); rngAreoAbv.value = p.get('aa'); }
+          if (p.get('at')) { inpAreoTemp.value = p.get('at'); rngAreoTemp.value = p.get('at'); }
+        }
+        switchNavTab(tab);
+      }
+    }
+
+    function shareUrl() {
+      updateUrlState();
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        showToast('Ссылка на этот расчет скопирована!');
+      });
+    }
+
+    function copyActiveRecipe() {
+      if (!lastCopyText) return;
+      navigator.clipboard.writeText(lastCopyText).then(() => {
+        showToast('Рецепт скопирован в буфер!');
+      });
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toast-text').innerText = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // Service Worker Registration for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+
+    // INIT
+    restoreFromUrl();
+    if (!window.location.hash) calcDilution();
+  </script>
+</body>
+</html>
